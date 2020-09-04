@@ -1,38 +1,68 @@
-.App {
+html, body, #root, div.App, div.webmap {
+  height: 100%;
+  width: 100%;
   text-align: center;
+  background-color: #ededed;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+div.App > button {
+  padding: 5px 15px;
+  border-radius: 3px;
+  background-color: white;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+  border: none;
+    cursor: pointer;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+div.App > button:hover  {
+  background-color: #e5e5e5;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+div.App > button:active  {
+  background-color: #bfbfbf;
+}
+
+#topbar {
+  background: #fff;
+  padding: 10px;
+}
+
+div.App div.esri-popup .esri-popup__inline-actions-container:only-child {
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
 }
 
-.App-link {
-  color: #61dafb;
+div.App div.esri-popup .esri-popup__icon {
+  width: 1.2em;
+  height: 1.2em;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+
+div.App div.esri-popup [class*="esri-icon"] {
+  font-size: 1.2em
+}
+div.App div.esri-popup .esri-popup__button {
+  border-radius: 2px;
+  padding: 15px 15px;
+  margin: 6px 0;
+  font-size: 1.5em;
+  line-height: 1.2em;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  color: #6e6e6e;
+  white-space: nowrap;
+  display: flex;
+  transition: background-color 125ms ease-in-out;
+  max-width: unset;
+}
+
+div.App button div.esri-icon-sketch-rectangle:before {
+  content: "\ue902";
+   font-family: 'CalciteWebCoreIcons' !important;
+}
+
+div.App div.bigIcon {
+  font-size:3em;
 }
