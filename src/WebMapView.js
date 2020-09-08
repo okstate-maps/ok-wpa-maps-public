@@ -37,8 +37,6 @@ export class WebMapView extends React.Component {
         basemap: new Basemap({baseLayers:[WPATiles]})
       });
 
-
-
       this.view = new MapView({
         container: this.mapRef.current,
         map: this.map,
@@ -111,6 +109,10 @@ export class WebMapView extends React.Component {
                 fieldName: 'ImprovementsValue2',
                 label: 'Improvements Value'
               },
+              {
+                fieldName: 'TaxExempt',
+                label: 'Marked with an X?'
+              }
             ]
           }
         ],
@@ -151,6 +153,10 @@ export class WebMapView extends React.Component {
               {
                 name: 'ImprovementsValue2',
                 label: 'Improvements Value'
+              },
+             {
+                name: 'TaxExempt',
+                label: 'Marked with an X?'
               }
             ],
             allowAttachments: false,
@@ -173,7 +179,6 @@ export class WebMapView extends React.Component {
       // Event handler that fires each time an action is clicked
       var that = this;
       this.view.popup.on("trigger-action", function (event) {
-
             if (event.action.id === "edit-this") {
               that.editThis();
             }
@@ -204,7 +209,7 @@ export class WebMapView extends React.Component {
               this.view.goTo(response.extent);
             })
           this.map.add(sectionsLayer);
-          this.view.ui.add(this.editor, 'top-right');
+          this.view.ui.add(this.editor, 'bottom-right');
           //this.editor.startCreateWorkflowAtFeatureCreation({layer: WPAMapsLandParcels, template: template});
       }
 
