@@ -120,45 +120,114 @@ export class WebMapView extends React.Component {
         actions: [thisLooksOkAction, editThisAction]
       }
 
-      
-      const WPAMapsLandParcels = new FeatureLayer({
-        url: this.WPAMapsLandParcelsUrl,
-        popupTemplate: template
-      });
-      
-      this.editor = new Editor({
-          view: this.view,
-          allowedWorkflows: [this.workflow],
-          layerInfos: [{
-            view: this.view,
-            layer: WPAMapsLandParcels,
-            fieldConfig: [
+      const formTemplate = {
+        title: "Land Info",
+        elements: [{ // Autocasts to new GroupElement
+          type: "group",
+          label: "Owner Information",
+          elements: [
               {
-                name: 'OwnerLastName',
+                type: "field",
+                fieldName: 'OwnerLastName',
                 label: 'Owner\'s Last Name (if an individual)'
               },
 
               {
-                name: 'OwnerFirstNameAndMI',
+                type: "field",
+                fieldName: 'OwnerFirstNameAndMI',
                 label: 'Owner\'s First Name or initials (if an individual)'
               },   
               {
-                name: 'OwnerOrgName',
+                type: "field",
+                fieldName: 'OwnerOrgName',
                 label: 'Owner (if an entity or organization)'
-              },
-              {
-                name: 'LandValue',
+              }
+              
+           
+          ]
+        },
+
+        { // Autocasts to new GroupElement
+          type: "group",
+          label: "Land and Improvement Valuation",
+          elements: [
+             {
+                type: "field",
+                fieldName: 'LandValue',
                 label: 'Land Value'
               },
               {
-                name: 'ImprovementsValue2',
+                type: "field",
+                fieldName: 'ImprovementsValue2',
                 label: 'Improvements Value'
+              },
+          ]
+        },
+
+           {
+                type: "field",
+                fieldName: 'TaxExempt',
+                label: 'Marked with an X?'
+              }
+
+        ]
+      }
+      var WPAMapsLandParcels = new FeatureLayer({
+        url: this.WPAMapsLandParcelsUrl,
+        popupTemplate: template,
+        formTemplate: formTemplate,
+        groupDisplay: 'sequential'
+      });
+
+      console.log(WPAMapsLandParcels);
+      
+      WPAMapsLandParcels.on("edits", (e) => {console.log(e)} );
+
+      this.editor = new Editor({
+          view: this.view,
+          allowedWorkflows: [this.workflow],
+          supportingWidgetDefaults: {
+            featureForm: {
+              groupDisplay: 'sequential',
+              fieldConfig: [
+              {
+                name: 'OwnerLastName',
+                label: 'Owner\'s Last Name (if an individual)',
+                required: false
+              },
+
+              {
+                name: 'OwnerFirstNameAndMI',
+                label: 'Owner\'s First Name or initials (if an individual)',
+                required: false
+              },   
+              {
+                name: 'OwnerOrgName',
+                label: 'Owner (if an entity or organization)',
+                required: false
+              },
+              {
+                name: 'LandValue',
+                label: 'Land Value',
+                required: false
+              },
+              {
+                name: 'ImprovementsValue2',
+                label: 'Improvements Value',
+                required: false
               },
              {
                 name: 'TaxExempt',
-                label: 'Marked with an X?'
+                label: 'Marked with an X?',
+                required: false
               }
             ],
+            }
+          },
+          layerInfos: [{
+            view: this.view,
+            layer: WPAMapsLandParcels,
+            //fieldConfig: 
             allowAttachments: false,
             deleteEnabled: false
           }]
@@ -209,6 +278,7 @@ export class WebMapView extends React.Component {
               this.view.goTo(response.extent);
             })
           this.map.add(sectionsLayer);
+          WPAMapsLandParcels.popupEnabled = false;
           this.view.ui.add(this.editor, 'bottom-right');
           //this.editor.startCreateWorkflowAtFeatureCreation({layer: WPAMapsLandParcels, template: template});
       }
@@ -259,7 +329,7 @@ export class WebMapView extends React.Component {
               editor.startUpdateWorkflowAtFeatureEdit(
                 view.popup.selectedFeature
               );
-              view.ui.add(editor, "top-right");
+              view.ui.add(editor, "bottom-right");
               view.popup.spinnerEnabled = false;
             }
 
