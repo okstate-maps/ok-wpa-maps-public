@@ -22,6 +22,21 @@ div.App > button:active  {
   background-color: #bfbfbf;
 }
 
+.esri-popup__button:active {
+  background-color: #bfbfbf;
+  
+}
+
+
+div.imgContainer {
+  max-width: 100%;
+  width:100%;
+}
+
+img {
+  width: 100%;
+}
+
 #topbar {
   background: #fff;
   padding: 10px;
@@ -42,9 +57,9 @@ div.App div.esri-popup [class*="esri-icon"] {
 }
 div.App div.esri-popup .esri-popup__button {
   border-radius: 2px;
-  padding: 15px 15px;
-  margin: 6px 0;
-  font-size: 1.5em;
+  padding: 8px 10px;
+  margin: 5px 0;
+  font-size: 1.4em;
   line-height: 1.2em;
   cursor: pointer;
   -webkit-user-select: none;

@@ -5,7 +5,6 @@ function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
 }
 
-
 export class WebMapView extends React.Component {
   constructor(props) {
     super(props);
@@ -16,16 +15,82 @@ export class WebMapView extends React.Component {
     this.workflow = props.workflow;
     this.editThis = this.editThis.bind(this);
     this.sayThanks = this.sayThanks.bind(this);
+    this.reviewWorkflow = this.reviewWorkflow.bind(this);
+    this.getRandomParcel = this.getRandomParcel.bind(this);
+    this.getRandomSection = this.getRandomSection.bind(this);
+    this.rotationChange = this.rotationChange.bind(this);
+    this.updateTimesChecked = this.updateTimesChecked.bind(this);
+    this.state = {
+                  updateFeature: null,
+                  mapRotation: 0
+                };
+    window.waah = this;
   }
 
+  getRandomParcel() {
+    var that = this;
+    var randomId = getRandomInt(this.objectIds.length - 1);     
+    var q = this.WPAMapsLandParcels.createQuery();
+    q.where = 'OBJECTID = ' + this.objectIds[randomId];
+    //this.WPAMapsLandParcels.definitionExpression = 'OBJECTID = ' + this.objectIds[randomId];
+    this.WPAMapsLandParcels.queryFeatures(q).then((response) => {
+      that.view.goTo(response.features[0].geometry.extent);
+      that.view.popup.features = response.features;
+      that.view.popup.visible = true;
+      that.setState({updateFeature: response.features[0]});
+      this.view.whenLayerView(this.WPAMapsLandParcels).then(function(layerView){
+        that.highlightedFeature = layerView.highlight(response.features[0]);
+      });
+    });
 
+  }
+
+  getRandomSection() {
+
+    var randomSectionId = getRandomInt(70915);
+    this.sectionsLayer.definitionExpression = 'OBJECTID = ' + randomSectionId;
+          
+    this.sectionsLayer
+      .when(() => {
+        return this.sectionsLayer.queryExtent();
+      })
+      .then((response) => {
+        this.view.goTo(response.extent);
+    })
+  }
+
+  reviewWorkflow() {
+    var that = this;    
+    this.WPAMapsLandParcels.queryObjectIds().then((objectIds) => {
+      that.objectIds = objectIds;
+      that.getRandomParcel();
+    });
+  }
+
+  rotationChange(newRot, oldRot, propName) {
+    if (oldRot === 0 && newRot !== 0) {
+      this.view.ui.add(this.compass, 'top-left');
+    }
+
+    if (oldRot !== 0 && newRot === 0) {
+      this.view.ui.remove(this.compass);
+    }
+  }
+  
   componentDidMount() {
     // lazy load the required ArcGIS API for JavaScript modules and CSS
-    loadModules(['esri/Map', 'esri/Basemap', 'esri/views/MapView', 
-                 'esri/layers/FeatureLayer','esri/widgets/Feature','esri/layers/TileLayer',
-                 'esri/widgets/Editor', 'esri/core/watchUtils',
+    loadModules(['esri/Map', 'esri/Basemap', 
+                 'esri/views/MapView', 
+                 'esri/layers/FeatureLayer',
+                 'esri/views/layers/FeatureLayerView',
+                 'esri/layers/TileLayer',
+                 'esri/widgets/Compass',
+                 'esri/widgets/Editor',
+                 'esri/core/watchUtils',
                  'esri/widgets/AreaMeasurement2D'], { css: true })
-    .then(([ArcGISMap, Basemap, MapView, FeatureLayer, Feature, TileLayer, Editor, watchUtils, AreaMeasurement2D]) => {
+    .then(([ArcGISMap, Basemap, MapView, FeatureLayer, 
+            FeatureLayerView, TileLayer, Compass, Editor, 
+            watchUtils, AreaMeasurement2D]) => {
 
       const WPATiles = new TileLayer({
         url: this.WPATilesUrl
@@ -52,11 +117,37 @@ export class WebMapView extends React.Component {
             // Ignore the default sizes that trigger responsive docking
             breakpoint: false
           }
-        },
-        center: [-98.5, 35.5],
-        zoom: 8
+        }
+        //center: [-98.5, 35.5],
+        //zoom: 8
       });
     
+      this.compass = new Compass({
+        view: this.view
+      });
+      
+      this.view.watch('rotation', this.rotationChange);
+
+      var refreshButton = document.createElement('div');
+
+      refreshButton.className = 'esri-icon-refresh esri-widget--button esri-widget esri-interactive ';
+      refreshButton.title = this.workflow === 'create' ? 
+            'Go to another random section.' : 
+            'Get another entry to review.';
+      refreshButton.addEventListener('click', () => {
+        switch (this.workflow) {
+          case 'create': 
+            this.getRandomSection();
+            break;
+          case 'update':
+            this.getRandomParcel();
+            break;
+          default:
+            alert('moo');
+        }
+      });
+
+      this.view.ui.add(refreshButton, 'bottom-left');
 
       //measurement widget, but let's not use it for now
       /*
@@ -68,7 +159,6 @@ export class WebMapView extends React.Component {
 
       this.view.ui.add(this.measurement, 'bottom-left');
       */
-
 
       const editThisAction = {
           title: 'Edit feature',
@@ -116,29 +206,29 @@ export class WebMapView extends React.Component {
             ]
           }
         ],
-        overwriteActions: true,
+        //overwriteActions: true,
         actions: [thisLooksOkAction, editThisAction]
       }
 
       const formTemplate = {
-        title: "Land Info",
+        title: 'Land Info',
         elements: [{ // Autocasts to new GroupElement
-          type: "group",
-          label: "Owner Information",
+          type: 'group',
+          label: 'Owner Information',
           elements: [
               {
-                type: "field",
+                type: 'field',
                 fieldName: 'OwnerLastName',
                 label: 'Owner\'s Last Name (if an individual)'
               },
 
               {
-                type: "field",
+                type: 'field',
                 fieldName: 'OwnerFirstNameAndMI',
                 label: 'Owner\'s First Name or initials (if an individual)'
               },   
               {
-                type: "field",
+                type: 'field',
                 fieldName: 'OwnerOrgName',
                 label: 'Owner (if an entity or organization)'
               }
@@ -148,16 +238,16 @@ export class WebMapView extends React.Component {
         },
 
         { // Autocasts to new GroupElement
-          type: "group",
-          label: "Land and Improvement Valuation",
+          type: 'group',
+          label: 'Land and Improvement Valuation',
           elements: [
              {
-                type: "field",
+                type: 'field',
                 fieldName: 'LandValue',
                 label: 'Land Value'
               },
               {
-                type: "field",
+                type: 'field',
                 fieldName: 'ImprovementsValue2',
                 label: 'Improvements Value'
               },
@@ -165,23 +255,28 @@ export class WebMapView extends React.Component {
         },
 
            {
-                type: "field",
+                type: 'field',
                 fieldName: 'TaxExempt',
                 label: 'Marked with an X?'
               }
 
         ]
       }
-      var WPAMapsLandParcels = new FeatureLayer({
+
+      this.WPAMapsLandParcels = new FeatureLayer({
         url: this.WPAMapsLandParcelsUrl,
         popupTemplate: template,
         formTemplate: formTemplate,
         groupDisplay: 'sequential'
       });
 
-      console.log(WPAMapsLandParcels);
       
-      WPAMapsLandParcels.on("edits", (e) => {console.log(e)} );
+      this.WPAMapsLandParcels.on('edits', (e) => {
+        if (e.updatedFeatures.length > 0) {
+          this.sayThanks();
+          this.view.ui.remove(this.editor);
+        }
+      } );
 
       this.editor = new Editor({
           view: this.view,
@@ -226,92 +321,107 @@ export class WebMapView extends React.Component {
           },
           layerInfos: [{
             view: this.view,
-            layer: WPAMapsLandParcels,
+            layer: this.WPAMapsLandParcels,
             //fieldConfig: 
             allowAttachments: false,
             deleteEnabled: false
           }]
         });
 
+
+      // I can't believe this is the only way to override widget labelling, but here we are
       this.editor.postInitialize = function(){
-        // I can't believe this is the only way to override widget labelling, but here we are
-        watchUtils.init(this,'messages', (messages)=>{
+        watchUtils.init(this,'messages', (messages) => {
           messages.widgetLabel = 'WPA Maps';
           messages.addFeature = 'Draw a new shape';
           messages.editFeature = 'Review an existing record';
         });
       };
 
+      //an attempt to prevent identical features from being created due to lack of feedback
+      //from the editor widget
+      this.editor.viewModel.watch('syncing', function(newVal,oldVal, propName, target){
+        let editButton = document.getElementsByClassName('esri-editor__control-button');
+        if (editButton.length === 0){
+          return;
+        }
+        
+        if (newVal === true) {
+          
+          editButton[0].disabled = 'disabled';
+          editButton[0].classList.add('esri-button--disabled');
+        }
+          
+        if (newVal === false) {
 
-
+          editButton[0].removeAttribute('disabled');
+          editButton[0].classList.remove('esri-button--disabled');
+        }
+      })
 
       // Event handler that fires each time an action is clicked
       var that = this;
-      this.view.popup.on("trigger-action", function (event) {
-            if (event.action.id === "edit-this") {
+      this.view.popup.on('trigger-action', function (event) {
+            if (event.action.id === 'edit-this') {
               that.editThis();
             }
 
             if (event.action.id === 'this-looks-ok'){
-              that.sayThanks();
+              that.updateTimesChecked();
             }
 
-          });
-
-
-     
-
+          });   
 
       // for creation, pick a random PLSS Section and zoom to it
       if (this.workflow === 'create') {
-          var randomSectionId = getRandomInt(70915);
-          const sectionsLayer = new FeatureLayer({
-            url: this.sectionsLayerUrl,
-            definitionExpression: 'OBJECTID = ' + randomSectionId
+          
+          this.sectionsLayer = new FeatureLayer({
+            url: this.sectionsLayerUrl
           });
 
-          sectionsLayer
-            .when(() => {
-              return sectionsLayer.queryExtent();
-            })
-            .then((response) => {
-              this.view.goTo(response.extent);
-            })
-          this.map.add(sectionsLayer);
-          WPAMapsLandParcels.popupEnabled = false;
+          this.getRandomSection();
+          this.map.add(this.sectionsLayer);
+          this.WPAMapsLandParcels.popupEnabled = false;
           this.view.ui.add(this.editor, 'bottom-right');
           //this.editor.startCreateWorkflowAtFeatureCreation({layer: WPAMapsLandParcels, template: template});
       }
 
-
-      var randomId;
       // for reviewing, pick a random polygon and zoom to it
       if (this.workflow === 'update') {
-          WPAMapsLandParcels.queryObjectIds().then((objectIds)=>{
-            randomId = getRandomInt(objectIds.length - 1);
-            WPAMapsLandParcels.definitionExpression = "OBJECTID = " + objectIds[randomId];
-
-          WPAMapsLandParcels
-            .when(() => {
-              return WPAMapsLandParcels.queryFeatures();
-            })
-            .then((response) => {
-              this.view.goTo(response.features[0].geometry.extent);
-             // this.editor.startUpdateWorkflowAtFeatureEdit(response.features[0]);
-
-            })
-          });
-
+        this.reviewWorkflow();
       }
 
-      this.map.add(WPAMapsLandParcels);
+      this.map.add(this.WPAMapsLandParcels);
 
       //this.view.ui.add(this.editor, 'top-right');
       });
   }
+
+  updateTimesChecked() {
+    var upFeat = this.state.updateFeature;
+    var currentTimesChecked = upFeat.getAttribute('timesChecked');
+    upFeat.setAttribute('timesChecked', currentTimesChecked + 1);
+    var edits = {updateFeatures: [upFeat]};
+    this.WPAMapsLandParcels.applyEdits(edits);
+    this.highlightedFeature.remove();
+  }
+
   sayThanks() {
-    alert("thank you");
-    //TODO add an incrementing integer for 'numberOfTimesChecked' or something along those lines.
+    var that = this;
+
+    this.props.setModalContent(
+      <div>
+        <h1>Thank you!</h1>
+        <p>Here's another entry to check.</p>
+      </div>
+    );
+    this.props.openModal();
+    setTimeout(function(){
+      that.props.closeModal(); 
+      }, 2000);
+
+    this.highlightedFeature.remove();
+    this.getRandomParcel();
     this.view.popup.close();
   }
   editThis() {
@@ -319,17 +429,14 @@ export class WebMapView extends React.Component {
         var editor = this.editor; 
         view.when(function () {
 
-  
-
             // If the EditorViewModel's activeWorkflow is null, make the popup not visible
             if (!editor.viewModel.activeWorkFlow) {
               view.popup.visible = false;
               // Call the Editor update feature edit workflow
-
               editor.startUpdateWorkflowAtFeatureEdit(
                 view.popup.selectedFeature
               );
-              view.ui.add(editor, "bottom-right");
+              view.ui.add(editor, 'bottom-right');
               view.popup.spinnerEnabled = false;
             }
 
@@ -338,16 +445,16 @@ export class WebMapView extends React.Component {
             setTimeout(function () {
               // Use the editor's back button as a way to cancel out of editing
               let arrComp = editor.domNode.getElementsByClassName(
-                "esri-editor__back-button esri-interactive"
+                'esri-editor__back-button esri-interactive'
               );
               if (arrComp.length === 1) {
                 // Add a tooltip for the back button
                 arrComp[0].setAttribute(
-                  "title",
-                  "Cancel edits, return to popup"
+                  'title',
+                  'Cancel edits, return to popup'
                 );
                 // Add a listerner to listen for when the editor's back button is clicked
-                arrComp[0].addEventListener("click", function (evt) {
+                arrComp[0].addEventListener('click', function (evt) {
                   // Prevent the default behavior for the back button and instead remove the editor and reopen the popup
                   evt.preventDefault();
                   view.ui.remove(editor);
@@ -372,7 +479,7 @@ export class WebMapView extends React.Component {
   render() {
     return (
       <>
-        <div className="webmap" ref={this.mapRef} />
+        <div className='webmap' ref={this.mapRef} />
       </>
     );
   }
