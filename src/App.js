@@ -33,28 +33,28 @@ function App() {
             <div className='imgContainer'>
               <img alt='Draw a shape representing a 
                     parcel of land and transcribe the ' 
-                  src='ok-wpa-maps/img/wpa3.gif'/>
+                  src={process.env.PUBLIC_URL + '/img/wpa3.gif'}/>
             </div>
           </div>,
       placement: 'auto',
       target: '.drawShapes',
       disableBeacon: true
     },    
-    {
-      content: 
-          <div>
-            <h1>Draw and transcribe map data</h1>
-            <div>
+    // {
+    //   content: 
+    //       <div>
+    //         <h1>Draw and transcribe map data</h1>
+    //         <div>
               
-            </div>
-          </div>,
-      placement: 'auto',
-      target: '.drawShapes',
-      disableBeacon: false
-    },
+    //         </div>
+    //       </div>,
+    //   placement: 'auto',
+    //   target: '.drawShapes',
+    //   disableBeacon: false
+    // },
 
     {
-      content: <h1>hello</h1>,
+      content: <h1>Review existing entries</h1>,
       placement: 'auto',
       target: '.reviewShapes'    
     },
@@ -64,7 +64,7 @@ function App() {
         <p>Right click and drag to change the rotation of the map.</p>
         <div className='imgContainer'>
           <img alt='Demonstration of rotating the map' 
-               src='ok-wpa-maps/img/wpa4.gif'/>
+               src={process.env.PUBLIC_URL + '/img/wpa4.gif'}/>
         </div>
         <p> Press the compass button to reset</p>
       </>,
