@@ -9,7 +9,7 @@ export class WebMapView extends React.Component {
   constructor(props) {
     super(props);
     this.WPATilesUrl = 'https://tiles.arcgis.com/tiles/jWQlP64OuwDh6GGX/arcgis/rest/services/_wpa_all_6Aug2020/MapServer';
-    this.WPAMapsLandParcelsUrl = 'https://services1.arcgis.com/jWQlP64OuwDh6GGX/arcgis/rest/services/WPA_Maps_Land_Parcels/FeatureServer/0';
+    this.WPAMapsLandParcelsUrl = 'https://services1.arcgis.com/jWQlP64OuwDh6GGX/arcgis/rest/services/WPA_Maps_Land_Parcels_Public/FeatureServer/0';
     this.sectionsLayerUrl = 'https://services1.arcgis.com/jWQlP64OuwDh6GGX/ArcGIS/rest/services/Oklahoma_Public_Land_Survey_Sections/FeatureServer/0';
     this.mapRef = React.createRef();
     this.workflow = props.workflow;
@@ -24,8 +24,7 @@ export class WebMapView extends React.Component {
                   updateFeature: null,
                   mapRotation: 0
                 };
-    window.waah = this;
-  }
+    }
 
   getRandomParcel() {
     var that = this;

@@ -2,7 +2,7 @@
   "name": "ok-wpa-maps",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://okstate-maps.github.io/ok-wpa-maps",
+  "homepage": "https://okstate-maps.github.io/ok-wpa-maps-public",
   "dependencies": {
     "@esri/calcite-components": "^1.0.0-beta.38",
     "@esri/calcite-ui-icons": "^3.10.0",
