@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/ok-wpa-maps-public/static/css/main.9a92386b.chunk.css",
+    "main.js": "/ok-wpa-maps-public/static/js/main.62ddb3b5.chunk.js",
+    "main.js.map": "/ok-wpa-maps-public/static/js/main.62ddb3b5.chunk.js.map",
+    "runtime-main.js": "/ok-wpa-maps-public/static/js/runtime-main.9725a850.js",
+    "runtime-main.js.map": "/ok-wpa-maps-public/static/js/runtime-main.9725a850.js.map",
+    "static/js/2.cbac9c08.chunk.js": "/ok-wpa-maps-public/static/js/2.cbac9c08.chunk.js",
+    "static/js/2.cbac9c08.chunk.js.map": "/ok-wpa-maps-public/static/js/2.cbac9c08.chunk.js.map",
+    "index.html": "/ok-wpa-maps-public/index.html",
+    "precache-manifest.5f5e076d14ae6e22d2dfb076cd8aa86a.js": "/ok-wpa-maps-public/precache-manifest.5f5e076d14ae6e22d2dfb076cd8aa86a.js",
+    "service-worker.js": "/ok-wpa-maps-public/service-worker.js",
+    "static/css/main.9a92386b.chunk.css.map": "/ok-wpa-maps-public/static/css/main.9a92386b.chunk.css.map",
+    "static/js/2.cbac9c08.chunk.js.LICENSE.txt": "/ok-wpa-maps-public/static/js/2.cbac9c08.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.9725a850.js",
+    "static/js/2.cbac9c08.chunk.js",
+    "static/css/main.9a92386b.chunk.css",
+    "static/js/main.62ddb3b5.chunk.js"
+  ]
+}
